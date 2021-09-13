@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Package skiplist is an implementation of a skiplist to store elements in increasing order.
+// Package skiplist is an implementation of a skiplist to store elements in increasing order. 递增排序
 // It allows finding, insertion and deletion operations in approximately O(n log(n)).
 // Additionally, there are methods for retrieving the next and previous element as well as changing the actual value
 // without the need for re-insertion (as long as the key stays the same!)
@@ -44,19 +44,23 @@ const (
 
 // ListElement is the interface to implement for elements that are inserted into the skiplist.
 type ListElement interface {
-	// ExtractKey() returns a float64 representation of the key that is used for insertion/deletion/find. It needs to establish an order over all elements
+	// ExtractKey() returns a float64 representation of the key that is used for insertion/deletion/find.
+	// It needs to establish an order over all elements
 	ExtractKey() float64
-	// A string representation of the element. Can be used for pretty-printing the list. Otherwise just return an empty string.
+	// A string representation of the element. Can be used for pretty-printing the list.
+	// Otherwise just return an empty string.
 	String() string
 }
 
 // SkipListElement represents one actual Node in the skiplist structure.
-// It saves the actual element, pointers to the next nodes and a pointer to one previous node.
+// It saves the actual element, pointers to the next nodes and a pointer
+// to one previous node.
+// 双向链表
 type SkipListElement struct {
 	next  [maxLevel]*SkipListElement
 	level int
 	key   float64
-	value ListElement
+	value ListElement  // 具体值，接口类型
 	prev  *SkipListElement
 }
 
@@ -68,12 +72,13 @@ type SkipList struct {
 	maxNewLevel  int
 	maxLevel     int
 	elementCount int
-	eps          float64
+	eps          float64 // 误差
 }
 
 // NewSeedEps returns a new empty, initialized Skiplist.
 // Given a seed, a deterministic height/list behaviour can be achieved.
 // Eps is used to compare keys given by the ExtractKey() function on equality.
+// Eps 用于比较 ExtractKey() 函数给出的键是否相等。
 func NewSeedEps(seed int64, eps float64) SkipList {
 
 	// Initialize random number generator.
@@ -119,6 +124,7 @@ func (t *SkipList) generateLevel(maxLevel int) int {
 	// First we apply some mask which makes sure that we don't get a level
 	// above our desired level. Then we find the first set bit.
 	var x uint64 = rand.Uint64() & ((1 << uint(maxLevel-1)) - 1)
+	// func TrailingZeros64(x uint64) int
 	zeroes := bits.TrailingZeros64(x)
 	if zeroes <= maxLevel {
 		level = zeroes
@@ -206,7 +212,7 @@ func (t *SkipList) Find(e ListElement) (elem *SkipListElement, ok bool) {
 	}
 
 	elem, ok = t.findExtended(e.ExtractKey(), false)
-	return
+	return elem, ok
 }
 
 // FindGreaterOrEqual finds the first element, that is greater or equal to the given ListElement e.
