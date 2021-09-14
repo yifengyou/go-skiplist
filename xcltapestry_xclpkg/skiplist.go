@@ -25,6 +25,7 @@ type SkipList struct {
 }
 
 func NewNode(v interface{}, level int) *Node {
+	// Value填充为level
 	return &Node{Value: v, Forward: make([]Node, level)}
 }
 
@@ -33,7 +34,6 @@ func NewSkipList() *SkipList {
 }
 
 func (skipList *SkipList) Insert(key int) {
-
 	update := make(map[int]*Node)
 	node := skipList.Header
 
@@ -45,28 +45,28 @@ func (skipList *SkipList) Insert(key int) {
 				break
 			}
 		}
+		// 前序节点位置
 		update[i] = node
 	}
-
 	level := skipList.Random_level()
+	// 如果是新增多层，每层头结点初始化
 	if level > skipList.Level {
 		for i := skipList.Level; i < level; i++ {
 			update[i] = skipList.Header
 		}
 		skipList.Level = level
 	}
-
 	newNode := NewNode(key, level)
-
 	for i := 0; i < level; i++ {
+		// 前序节点的下一节点
 		newNode.Forward[i] = update[i].Forward[i]
+		// 更新前序节点的下一节点
 		update[i].Forward[i] = *newNode
 	}
 
 }
 
 func (skipList *SkipList) Random_level() int {
-
 	level := 1
 	// 返回一个int32类型的非负的31位伪随机数。
 	// const SKIPLIST_P = 4
@@ -82,7 +82,6 @@ func (skipList *SkipList) Random_level() int {
 }
 
 func (skipList *SkipList) PrintSkipList() {
-
 	fmt.Println("\nSkipList-------------------------------------------")
 	for i := SKIPLIST_MAXLEVEL - 1; i >= 0; i-- {
 		fmt.Println("level:", i)
@@ -105,8 +104,7 @@ func (skipList *SkipList) Search(key int) *Node {
 
 	node := skipList.Header
 	for i := skipList.Level - 1; i >= 0; i-- {
-
-		fmt.Println("\n Search() Level=", i)
+		fmt.Println("\n Search() Level=", i) // 逐层检索
 		for {
 			if node.Forward[i].Value == nil {
 				break
@@ -122,6 +120,8 @@ func (skipList *SkipList) Search(key int) *Node {
 				node = &node.Forward[i]
 				continue
 			} else { // > key
+				// 如果key要大，需要下沉，这里下沉复用上层的位置作为起始位置了么？
+				// 如果没有，那就是辣鸡。。
 				break
 			}
 		} //end for find
